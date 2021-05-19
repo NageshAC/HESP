@@ -7,17 +7,17 @@
 using namespace std;
 
 template<typename T>
-void init(T* f, unsigned N){
-    T* a = new T [N];
-    for(int i=0; i<N; i++) a[i] = 0;
-    f = a;
+T* init(T* f, unsigned N){
+    f = new T [N];
+    for(int i=0; i<N; i++) f[i] = 0;
+    return f;
 }
 
 void readParam(
-    string paramFileName,
-    string *part_input_file,string *part_out_name_base,string *vtk_out_name_base,
-    double* timeStep,double* timeEnd,double* epsilon,double* sigma,
-    unsigned* part_out_freq,unsigned* vtk_out_freq,unsigned* cl_wg_1dsize
+    const string& paramFileName,
+    string& part_input_file,string &part_out_name_base,string &vtk_out_name_base,
+    double& timeStep,double& timeEnd,double& epsilon,double& sigma,
+    unsigned& part_out_freq,unsigned& vtk_out_freq,unsigned& cl_wg_1dsize
 
 ){
     fstream paramFile;
@@ -30,16 +30,16 @@ void readParam(
             paramFile >> out1;
             paramFile >> out2;
             // cout<<out1<<"-"<<out2<<endl;
-            if(out1 == "part_input_file") *part_input_file = out2;
-            if(out1 == "timestep_length") stringstream(out2) >> *timeStep;
-            if(out1 == "time_end") stringstream(out2) >> *timeEnd;
-            if(out1 == "epsilon") stringstream(out2) >> *epsilon;
-            if(out1 == "sigma") stringstream(out2) >> *sigma;
-            if(out1 == "part_out_freq") stringstream(out2) >> *part_out_freq;
-            if(out1 == "part_out_name_base") *part_out_name_base = out2;
-            if(out1 == "vtk_out_freq") stringstream(out2) >> *vtk_out_freq;
-            if(out1 == "vtk_out_name_base") *vtk_out_name_base = out2;
-            if(out1 == "cl_workgroup_1dsize") stringstream(out2) >> *cl_wg_1dsize;
+            if(out1 == "part_input_file") part_input_file = out2;
+            if(out1 == "timestep_length") stringstream(out2) >> timeStep;
+            if(out1 == "time_end") stringstream(out2) >> timeEnd;
+            if(out1 == "epsilon") stringstream(out2) >> epsilon;
+            if(out1 == "sigma") stringstream(out2) >> sigma;
+            if(out1 == "part_out_freq") stringstream(out2) >> part_out_freq;
+            if(out1 == "part_out_name_base") part_out_name_base = out2;
+            if(out1 == "vtk_out_freq") stringstream(out2) >> vtk_out_freq;
+            if(out1 == "vtk_out_name_base") vtk_out_name_base = out2;
+            if(out1 == "cl_workgroup_1dsize") stringstream(out2) >> cl_wg_1dsize;
         }
         cout<<"Done reading paramerters file.\n\n";
     }
@@ -51,9 +51,9 @@ void readParam(
 }
 
 void writeParam(
-    string part_input_file,string part_out_name_base,string vtk_out_name_base,
-    double timeStep,double timeEnd,double epsilon,double sigma,
-    unsigned part_out_freq,unsigned vtk_out_freq,unsigned cl_wg_1dsize
+    const string& part_input_file,const string& part_out_name_base,const string& vtk_out_name_base,
+    double& timeStep,double& timeEnd,double& epsilon,double& sigma,
+    unsigned& part_out_freq,unsigned& vtk_out_freq,unsigned& cl_wg_1dsize
 
 ){
     cout<<"\n--- printing parameters ---\n"
@@ -71,7 +71,7 @@ void writeParam(
 
 }
 void readInput(
-        string infile, double *x, double *v, 
+        const string& infile, double *x, double *v, 
         double *m, unsigned& N, unsigned& dim){
     fstream ifile;
     ifile.open(infile,ios::in);
@@ -98,16 +98,36 @@ void readInput(
         cout<<"Line size = "<<line_size<<endl;
         cout<<"dim = "<<dim<<endl;
 
-        init(m,N); init(x,N*dim); init(v,N*dim);
+        m = init(m,N); x = init(x,(N*dim)); v = init(v,(N*dim));
+        // init(m,N); init(x,(N*dim)); init(v,(N*dim));
+
 
         for(int i=0; i<N; i++){
             for (int j =0; j<dim; j++){
-                stringstream(sliced[i*line_size+j]) >> x[i*dim+j];
-                stringstream(sliced[i*line_size+dim+j]) >> v[i*dim+j];
-                cout<<endl<<i*line_size+j<<" : x "<<i*dim+j
-                    <<"  -->  "<<sliced[i*line_size+j]<<" : "<<x[i*dim+j];
-                cout<<endl<<i*line_size+dim+j<<" : v "<<i*dim+j
-                    <<"  -->  "<<sliced[i*line_size+dim+j] <<" : "<<v[i*dim+j];
+                int x_slice = i*line_size+j;
+                int v_slice = i*line_size+dim+j;
+                int idx = i*dim+j;
+                // stringstream(sliced[i*line_size+j]) >> x[i*dim+j];
+                // stringstream(sliced[i*line_size+dim+j]) >> v[i*dim+j];
+                // cout<<endl<<i*line_size+j<<" : x "<<i*dim+j
+                //     <<"  -->  "<<sliced[i*line_size+j]<<" : "<<x[i*dim+j];
+                // cout<<endl<<i*line_size+dim+j<<" : v "<<i*dim+j
+                //     <<"  -->  "<<sliced[i*line_size+dim+j] <<" : "<<v[i*dim+j];
+
+                stringstream(sliced[x_slice]) >> x[idx];
+                stringstream(sliced[v_slice]) >> v[idx];
+                cout<<endl<<x_slice<<" : x "<<idx
+                    <<"  -->  "<<sliced[x_slice]<<" : "<<x[idx];
+                cout<<endl<<v_slice<<" : v "<<idx
+                    <<"  -->  "<<sliced[v_slice] <<" : "<<v[idx];
+
+                // cout << "\n\n";
+                // for(unsigned itr = 0; itr < (N*dim); ++itr)
+                //     cout << x[itr] << "\t";
+                // cout << "\n\n";
+                // for(unsigned itr = 0; itr < (N*dim); ++itr)
+                //     cout << v[itr] << "\t";
+                // cout << "\n\n";
             }
             stringstream(sliced[(i+1)*line_size-1]) >> m[i];
         }
@@ -144,15 +164,15 @@ int main(){
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
     readParam(
         paramFileName,
-        &part_input_file, &part_out_name_base, &vtk_out_name_base,
-        &timeStep, &timeEnd, &epsilon, &sigma,
-        &part_out_freq, &vtk_out_freq, &cl_wg_1dsize
-    );
-    writeParam(
         part_input_file, part_out_name_base, vtk_out_name_base,
         timeStep, timeEnd, epsilon, sigma,
         part_out_freq, vtk_out_freq, cl_wg_1dsize
     );
+    // writeParam(
+    //     part_input_file, part_out_name_base, vtk_out_name_base,
+    //     timeStep, timeEnd, epsilon, sigma,
+    //     part_out_freq, vtk_out_freq, cl_wg_1dsize
+    // );
 
     // initialising the setup;
     unsigned N , dim;
