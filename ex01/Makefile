@@ -11,7 +11,7 @@ cpu:
 	./jCPU 0 0.8 juliaCPU2.png
 	rm -r jCPU
 cuda:
-	nvcc -std=c++11 --debug juliaCUDA.cu lodepng.cpp -o jCUDA
+	nvcc -std=c++11 juliaCUDA.cu lodepng.cpp -o jCUDA
 	./jCUDA -0.8 0.2 juliaCUDA1.png
 	./jCUDA 0 0.8 juliaCUDA2.png
 	rm -r jCUDA

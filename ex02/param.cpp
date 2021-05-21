@@ -33,7 +33,7 @@ void readParam(
             if(out1 == "vtk_out_name_base") vtk_out_name_base = out2;
             if(out1 == "cl_workgroup_1dsize") stringstream(out2) >> cl_wg_1dsize;
         }
-        cout<<"Done reading paramerters file.\n\n";
+        // cout<<"Done reading paramerters file.\n\n";
     }
     else{
         cout<<"The input file cannot be opened.\n";
