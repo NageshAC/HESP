@@ -4,6 +4,7 @@
 #include<cmath>
 #include"param.cpp"
 #include"input.cpp"
+#include"output.cpp"
 
 using namespace std;
 
@@ -29,9 +30,9 @@ inline vector<double> mul (vector<double>& x,const double m){
     return temp;
 }
 inline vector<double> muldiv (vector<double>& x,const double m, const double n){
-    if(n==0) cout<<"Multiplication by zero is encountered.\n";
+    if(n==0) cout<<"Division by zero is encountered.\n";
     vector<double> temp = mul(x,m);
-    for(int i=0; i<x.size();i++) temp[i] /= n;
+    temp = mul(temp,1/n);
     return temp;
 }
 inline double dis(const vector<double>& x,const vector<double>& y){
@@ -77,25 +78,54 @@ inline vector<double> ljpot(
 //         }
 //         cout<< f[0][0] <<" ; "<< f[0][1]<<" ; "<< f[0][2]<<endl;
 //         cout<< f[1][0] <<" ; "<< f[1][1]<<" ; "<< f[1][2]<<endl;
-
 //     return f;
 // }
+
 vector<double>calForce(vector<vector<double>>& x, int n,
     const double& eps, const double& sig){
     vector<double> f;
     for(int j=0; j<x[0].size();++j) f.push_back(0.); 
     for(int j=0; j<x.size();j++)
         if(n!=j) f = add(f, ljpot(x[n], x[j], eps, sig));
-        cout<< f[0] <<" ; "<< f[1]<<" ; "<< f[2]<<endl;
+        // cout<< f[0] <<" ; "<< f[1]<<" ; "<< f[2]<<endl;
     return f;
 }
-vector<double> calx(){
-    vector<double> temp;
+
+vector<double> calx(
+    vector<double>& x, vector<double>& v, vector<double>& f, 
+    const double timeStep, const double m){
+    vector<double> temp1, temp2;
+    temp1 = muldiv(f,pow(timeStep,2),2*m);
+    temp2 = mul(v,timeStep);
+    temp1 = add(temp1, temp2, x);
+    return temp1;
+}
+
+vector<double> calv(
+    vector<double>& v, vector<double>& fold, 
+    vector<double>& f, 
+    const double timeStep, const double m
+){
+    vector<double> temp = add(fold,f);
+    temp = muldiv(temp, timeStep,2*m);
+    temp = add(temp,v);
     return temp;
 }
 
-void vel_ver(){
-
+void vel_ver_x(
+    vector<vector<vector<double>>>& x, vector<vector<vector<double>>>& v,
+    vector<vector<vector<double>>>& f, vector<double>& m,
+    double timeStep, int frame, int n
+){
+    x[frame][n] = calx(x[frame-1][n], v[frame-1][n], f[frame-1][n], timeStep, m[n]);
+};
+void vel_ver_vf(
+    vector<vector<vector<double>>>& x, vector<vector<vector<double>>>& v,
+    vector<vector<vector<double>>>& f, vector<double>& m, double epsilon,
+    double sigma, double timeStep, int frame, int n
+){
+    f[frame][n] = calForce(x[frame],n,epsilon,sigma);
+    v[frame][n] = calv(v[frame-1][n],f[frame-1][n],f[frame][n], timeStep, m[n]);
 };
 
 void setProp(vector<vector<vector<double>>>& f, const int size, const int N, const int dim ){
@@ -108,7 +138,7 @@ void setProp(vector<vector<vector<double>>>& f, const int size, const int N, con
 
 int main(){
     //reading input parameters
-    string paramFileName = "attract.par";
+    string paramFileName = "./Question/input/stable.par";
     string part_input_file, part_out_name_base, vtk_out_name_base;
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
@@ -149,9 +179,17 @@ int main(){
     // cout<<endl<<x[0].size()<<endl;
     // cout<<endl<<x[0][0].size()<<endl;
 
-
     // vel verlet
+    for(int i=1;i<size;i++){
+        for(int j=0;j<N; j++){
+            vel_ver_x(x,v,f,m,timeStep,i,j);
+        }
+        for(int j=0;j<N; j++){
+            vel_ver_vf(x,v,f,m,epsilon,sigma,timeStep,i,j);
+        }
+    }
 
+    writeOut(part_out_name_base, part_out_freq, m, x, v);
 
     return 0;
 }

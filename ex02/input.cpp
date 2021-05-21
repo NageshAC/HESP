@@ -19,6 +19,7 @@ void outInput(
         for(int j=0;j<dim; j++)cout<<v[i][j]<<"  ";
     cout<<"\nm = ";
     for(int i=0; i<m.size(); i++) cout<<m[i]<<"  ";
+    cout<<"\n\n";
 }
 
 void readInput(
@@ -58,15 +59,15 @@ void readInput(
         for(int i=0; i<N; i++){
             x_temp.clear(); v_temp.clear();
             for (int j =0; j<dim; j++){
-                int x_slice = i*line_size+j;
-                int v_slice = i*line_size+dim+j;
+                int x_slice = i*line_size+j+1;
+                int v_slice = i*line_size+dim+j+1;
                 // cout<<x_slice<<" : "<<v_slice<<"\n";
                 stringstream(sliced[x_slice]) >> dTemp;
                 x_temp.push_back(dTemp);
                 stringstream(sliced[v_slice]) >> dTemp;
                 v_temp.push_back(dTemp);
             }
-            int m_slice = (i+1)*line_size-1;
+            int m_slice = i*line_size;
             // cout<<m_slice<<"\n";
             x_2d.push_back(x_temp); v_2d.push_back(v_temp);
             stringstream(sliced[m_slice]) >> dTemp;
