@@ -108,11 +108,13 @@ void createImg(double cx, double cy, string filename = "juliaCUDAx.png"){
     cudasafe(cudaMalloc(&d_z, w*h*sizeof(thrust::complex<double>)), "Mem Allo", __FILE__,__LINE__);
 
     for(int i=0; i<w*h; i++)z[i] = initR(i);
+
     cudasafe(cudaMemcpy(d_z,&z[0], w*h*sizeof(thrust::complex<double>),cudaMemcpyHostToDevice), "Mem Allo", __FILE__,__LINE__);
 
     setv <<< grids, blocks >>> (d_img,cx,cy,d_z);
 
     initBG(img);
+    
     cudasafe(cudaDeviceSynchronize(),"Sync", __FILE__,__LINE__);
     cudasafe(cudaMemcpy(image, d_img, w*h*sizeof(int), cudaMemcpyDeviceToHost), "Mem Trans", __FILE__,__LINE__);
 

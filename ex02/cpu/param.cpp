@@ -36,7 +36,7 @@ void readParam(
         // cout<<"Done reading paramerters file.\n\n";
     }
     else{
-        cout<<"The input file cannot be opened.\n";
+        cout<<"The .par file cannot be opened.\n";
         exit(202);
     }
     paramFile.close();

@@ -80,7 +80,7 @@ void readInput(
         // cout<<"\nInput file closed.\n";
     }
     else{
-        cout<<"The input file cannot be opened.\n";
+        cout<<"The .in file cannot be opened.\n";
         exit(202);
     }
     
