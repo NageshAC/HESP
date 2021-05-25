@@ -5,7 +5,6 @@
 #include"param.cpp"
 #include"input.cpp"
 #include"output.cpp"
-// #include"miscellaneous.cpp"
 #include"vel_ver.cpp"
 
 using namespace std;
@@ -19,7 +18,8 @@ int main(){
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
     
     // reading .par file
-    {   // in param.cpp file
+    {
+        // in param.cpp file
         readParam(
             input_path + paramFileName,
             part_input_file, part_out_name_base, vtk_out_name_base,
@@ -55,11 +55,12 @@ int main(){
         setProp(f,size,N,dim);
 
         // outInput(x[0],v[0],m,N,dim); // in input.cpp
-    }
     
-    // initial force calculation
-    for(int i=0; i<N; i++)f[0][i]=(calForce(x[0],i, epsilon, sigma));
-    // in vel_ver.cpp
+    
+        // initial force calculation
+        for(int i=0; i<N; i++)calForce(f[0][i], x[0],i, epsilon, sigma);
+        // in vel_ver.cpp
+    }
 
     // vel verlet
     for(int i=1;i<size;i++){

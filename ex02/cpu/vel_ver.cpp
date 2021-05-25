@@ -44,35 +44,34 @@ inline vector<double> ljpot(
 //     return f;
 // }
 
-vector<double>calForce(vector<vector<double>>& x, int n,
+void calForce(vector<double>& f, vector<vector<double>>& x, int n,
     const double& eps, const double& sig){
-    vector<double> f;
-    for(int j=0; j<x[0].size();++j) f.push_back(0.); 
+
     for(int j=0; j<x.size();j++)
         if(n!=j) f = add(f, ljpot(x[n], x[j], eps, sig));
         // cout<< f[0] <<" ; "<< f[1]<<" ; "<< f[2]<<endl;
-    return f;
 }
 
-vector<double> calx(
-    vector<double>& x, vector<double>& v, vector<double>& f, 
-    const double timeStep, const double m){
+void calx(
+    vector<double>& x, vector<double>& x_old, 
+    vector<double>& v, vector<double>& f, 
+    const double timeStep, const double m
+){
     vector<double> temp1, temp2;
     temp1 = muldiv(f,pow(timeStep,2),2*m);
     temp2 = mul(v,timeStep);
-    temp1 = add(temp1, temp2, x);
-    return temp1;
+    temp1 = add(temp1, temp2, x_old);
+    x = temp1;
 }
 
-vector<double> calv(
-    vector<double>& v, vector<double>& fold, 
-    vector<double>& f, 
+void calv(
+    vector<double>& v, vector<double>& v_old, 
+    vector<double>& f_old, vector<double>& f, 
     const double timeStep, const double m
 ){
-    vector<double> temp = add(fold,f);
-    temp = muldiv(temp, timeStep,2*m);
-    temp = add(temp,v);
-    return temp;
+    v = add(f_old,f);
+    v = muldiv(v, timeStep,2*m);
+    v = add(v,v_old);
 }
 
 void vel_ver_x(
@@ -80,14 +79,14 @@ void vel_ver_x(
     vector<vector<vector<double>>>& f, vector<double>& m,
     double timeStep, int frame, int n
 ){
-    x[frame][n] = calx(x[frame-1][n], v[frame-1][n], f[frame-1][n], timeStep, m[n]);
+    calx(x[frame][n], x[frame-1][n], v[frame-1][n], f[frame-1][n], timeStep, m[n]);
 };
 void vel_ver_vf(
     vector<vector<vector<double>>>& x, vector<vector<vector<double>>>& v,
     vector<vector<vector<double>>>& f, vector<double>& m, double epsilon,
     double sigma, double timeStep, int frame, int n
 ){
-    f[frame][n] = calForce(x[frame],n,epsilon,sigma);
-    v[frame][n] = calv(v[frame-1][n],f[frame-1][n],f[frame][n], timeStep, m[n]);
+    calForce(f[frame][n], x[frame],n,epsilon,sigma);
+    calv(v[frame][n], v[frame-1][n],f[frame-1][n],f[frame][n], timeStep, m[n]);
 };
 

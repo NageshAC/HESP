@@ -1,87 +1,84 @@
-#pragma once
 #include<iostream>
 #include<fstream>
 #include<sstream>
-#include<vector>
-#include<string>
+#include<iomanip>
+#include<thrust/host_vector.h>
+#include"miscellaneous.cpp"
 
-using namespace std;
+using namespace thrust;
 
-void outInput(
-        vector<vector<double>>& x, vector<vector<double>>& v, 
-        vector<double>& m, unsigned& N, unsigned& dim){
+void outInput( 
+    double* x,
+    double* v,
+    double* m, const int N, const int dim
+){
+    cout<<"\n------------------------------------------------------------\n"
+        << N;
+    for(int i=0; i<N; i++){
+        cout<<std::fixed<<std::setprecision(6)<<endl<<m[i];
+        for(int j=0; j<dim; ++j)cout<<" "<<x[i*dim+j];
+        for(int j=0; j<dim; ++j)cout<<" "<<v[i*dim+j];
+    }
+    cout<<"\n------------------------------------------------------------\n\n";
 
-    cout<<"\nx = ";
-    for(int i=0; i < N; i++)
-        for(int j=0;j<dim; j++)cout<<x[i][j]<<"  ";
-    cout<<"\nv = ";
-    for(int i=0; i < N; i++)
-        for(int j=0;j<dim; j++)cout<<v[i][j]<<"  ";
-    cout<<"\nm = ";
-    for(int i=0; i<m.size(); i++) cout<<m[i]<<"  ";
-    cout<<"\n\n";
+
 }
 
-void readInput(
-        const string& infile, vector<vector<vector<double>>>& x, 
-        vector<vector<vector<double>>>& v, 
-        vector<double>& m, unsigned& N, unsigned& dim){
+void readInput( string fileName, 
+    host_vector<double>& sliced, int& N, int& dim
+){
+    fstream file;
+    file.open(fileName);
+    if (file.is_open()){
+        // declearing few extra variables
+        double out;
 
-    fstream ifile;
-    ifile.open(infile,ios::in);
-    if(ifile.is_open()){
-        // cout<<"Input file is opened.\n";
+        file >> N;
+        // stringstream(out) >> N;
 
-        string out;
-        double dTemp;
-        vector<double> x_temp, v_temp;
-        vector<vector<double>> x_2d, v_2d;
-        vector<string> sliced;
-        ifile >> out;
-        stringstream(out) >> N;
-        // cout<<"N = "<<N<<"\n";
-
-        while(!ifile.eof()){
-            ifile >> out;
-            // cout<<out<<" ";
+        do{
+            file >> out;
             sliced.push_back(out);
-        }
+        }while(!file.eof());
         sliced.pop_back(); // for some reason it is adding 1 extra <last element> at the end
+        
         unsigned line_size = sliced.size()/N;
         dim = (line_size-1)/2;
 
+        // test print
+        // cout << "N = " <<N<<endl;
         // for(int i=0; i<sliced.size(); i++) cout<<sliced[i]<<"  ";
         // cout<<"\nslice size = "<<sliced.size()<<endl;
         // cout<<"Line size = "<<line_size<<endl;
         // cout<<"dim = "<<dim<<endl;
 
-        // x.reserve(N);v.reserve(N);
-        for(int i=0; i<N; i++){
-            x_temp.clear(); v_temp.clear();
-            for (int j =0; j<dim; j++){
-                int x_slice = i*line_size+j+1;
-                int v_slice = i*line_size+dim+j+1;
-                // cout<<x_slice<<" : "<<v_slice<<"\n";
-                stringstream(sliced[x_slice]) >> dTemp;
-                x_temp.push_back(dTemp);
-                stringstream(sliced[v_slice]) >> dTemp;
-                v_temp.push_back(dTemp);
-            }
-            int m_slice = i*line_size;
-            // cout<<m_slice<<"\n";
-            x_2d.push_back(x_temp); v_2d.push_back(v_temp);
-            stringstream(sliced[m_slice]) >> dTemp;
-            m.push_back(dTemp);
-            // cout<<"m = "<<m[i]<<endl;
-        }
-        x.push_back(x_2d); v.push_back(v_2d);
 
-        ifile.close();
-        // cout<<"\nInput file closed.\n";
     }
     else{
         cout<<"The .in file cannot be opened.\n";
         exit(202);
     }
-    
+
+}
+
+void extract(
+    host_vector<double>& x, host_vector<double>& v, host_vector<double>& m,
+    double* sliced,const int& N, const int& dim
+){
+    // copy from sliced to x,y,m
+    cout<<"Edim = "<<dim<<endl;
+    int line_size = N*dim+1;
+    for (int i=0; i<N; ++i){
+        for(int j=0; j<dim; ++j){
+            int pos_x = i*line_size+j+1;
+            int pos_v = i*line_size+dim+j+1;
+            x[i*dim+j] = sliced[pos_x];
+            v[i*dim+j] = sliced[pos_v];
+            // cout<<sliced[pos_x]<<" : "<<x[i*dim+j]
+            //     <" ? "<<sliced[pos_v]<<" : "<< v[i*dim+j]<<endl;
+        }
+        int pos_m = i*line_size;
+        sliced[pos_m] = m[i];
+        // cout<<sliced[pos_m]<<" : "<<m[i]<<endl;
+    }
 }
