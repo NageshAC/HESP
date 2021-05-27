@@ -62,12 +62,11 @@ void readInput( string fileName,
 }
 
 void extract(
-    host_vector<double>& x, host_vector<double>& v, host_vector<double>& m,
+    double* x, double* v, double* m,
     double* sliced,const int& N, const int& dim
 ){
     // copy from sliced to x,y,m
-    cout<<"Edim = "<<dim<<endl;
-    int line_size = N*dim+1;
+    int line_size = 2*dim+1;
     for (int i=0; i<N; ++i){
         for(int j=0; j<dim; ++j){
             int pos_x = i*line_size+j+1;
@@ -75,10 +74,10 @@ void extract(
             x[i*dim+j] = sliced[pos_x];
             v[i*dim+j] = sliced[pos_v];
             // cout<<sliced[pos_x]<<" : "<<x[i*dim+j]
-            //     <" ? "<<sliced[pos_v]<<" : "<< v[i*dim+j]<<endl;
+            //     <<" ? "<<sliced[pos_v]<<" : "<< v[i*dim+j]<<endl;
         }
         int pos_m = i*line_size;
-        sliced[pos_m] = m[i];
+        m[i] = sliced[pos_m];
         // cout<<sliced[pos_m]<<" : "<<m[i]<<endl;
     }
 }

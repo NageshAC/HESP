@@ -12,7 +12,7 @@ using namespace std;
 
 int main(){
     //reading input parameters
-    string paramFileName ="stable.par",input_path = "./Question/input/";
+    string paramFileName ="attract.par",input_path = "../Question/input/";
     string part_input_file, part_out_name_base, vtk_out_name_base;
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
@@ -59,6 +59,10 @@ int main(){
     
         // initial force calculation
         for(int i=0; i<N; i++)calForce(f[0][i], x[0],i, epsilon, sigma);
+        for (int i=0; i<3; i++) cout<<f[0][0][i]<< "  ";
+        cout<<endl;
+        for (int i=0; i<3; i++) cout<<f[0][1][i]<< "  ";
+        cout<<endl;
         // in vel_ver.cpp
     }
 
