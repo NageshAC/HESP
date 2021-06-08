@@ -50,7 +50,7 @@ int main(){
     thrust::host_vector<double> sliced;
 
     readInput(input_path + part_input_file,sliced,N,dim); // in input.cpp
-    host_vector<double> x(N*dim,0), v(N*dim,0),f(N*dim,0), m(N,0);
+    host_vector<double> x(N*dim,0), v(N*dim,0), m(N,0);
 
     // extracting m,x,v data from sliced
     // initiating fource
@@ -67,18 +67,10 @@ int main(){
             raw_pointer_cast(m.data()),
             N,dim
         ); // in input.cpp
-        
-        for(int i=0; i<N; i++)
-            calforce(
-                raw_pointer_cast(&f[i*dim]), 
-                raw_pointer_cast(&x[i*dim]),
-                raw_pointer_cast(&x[0]),
-                N, dim, epsilon, sigma
-            );
-        
-        // for (int j=0; j<6; j++) cout<<f[j]<<"  ";
-        // cout<<endl;
     }
+    
+    // CUDA Programming
+    device_vector<double> d_x(x),d_x_old(x),d_v(v),d_v_old(v),d_f(N*dim,0),d_f_old(N*dim,0),d_m(m);
     
 
 
