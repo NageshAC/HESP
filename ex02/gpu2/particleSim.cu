@@ -23,7 +23,7 @@ void cudasafe(int error, string message, string file, int line) {
 int main(){
         
     //reading input parameters
-    string paramFileName ="attract.par",input_path = "./Question/input/";
+    string paramFileName ="attract.par",input_path = "../Question/input/";
     string part_input_file, part_out_name_base, vtk_out_name_base;
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
@@ -93,12 +93,12 @@ int main(){
         N, dim, epsilon, sigma
     );
 
-    for (int i=0; i<N; i++){
-        for (int j=0; j<dim; j++)
-            cout<<d_f[i*dim+j]<<"\t";
+    // for (int i=0; i<N; i++){
+    //     for (int j=0; j<dim; j++)
+    //         cout<<d_f[i*dim+j]<<"\t";
         
-    }
-    cout<<endl;
+    // }
+    // cout<<endl;
 
     writeOut(
         part_out_name_base, 0,
@@ -106,7 +106,14 @@ int main(){
         raw_pointer_cast(&x[0]),
         raw_pointer_cast(&v[0]),
         N, dim
-    ); // in input.cpp
+    ); // in output.cpp
+    writeVTK(
+        vtk_out_name_base, 0,
+        raw_pointer_cast(&m[0]),
+        raw_pointer_cast(&x[0]),
+        raw_pointer_cast(&v[0]),
+        N, dim
+    ); // in output.cpp
 
     for(int i=1; i<=frames; i++){
         calX<<<gridSize, blockSize>>>(
@@ -132,37 +139,43 @@ int main(){
             raw_pointer_cast(&d_m[0]),
             timeStep, N, dim
         );
-        if(i<2){
+        // if(i<2){
 
-            for (int k=0; k<N*dim; k++){
-                    cout<<d_f[k]<<"\t";            
-            }
-            cout<<endl;
+        //     for (int k=0; k<N*dim; k++){
+        //             cout<<d_f[k]<<"\t";            
+        //     }
+        //     cout<<endl;
 
-            // for (int k=0; k<N*dim; k++){
-            //         cout<<d_x[k]<<"\t";
-            // }
-            // cout<<endl;
+        //     // for (int k=0; k<N*dim; k++){
+        //     //         cout<<d_x[k]<<"\t";
+        //     // }
+        //     // cout<<endl;
 
-            for (int k=0; k<N*dim; k++){
-                    cout<<d_v[k]<<"\t";            
-            }
-            cout<<endl;
-        }
+        //     for (int k=0; k<N*dim; k++){
+        //             cout<<d_v[k]<<"\t";            
+        //     }
+        //     cout<<endl;
+        // }
 
-        if(i%part_out_freq == 0){
+        // if(i%part_out_freq == 0){
+        //     m = d_m; x = d_x; v = d_v;
+        //     writeOut(
+        //         part_out_name_base, (i/part_out_freq),
+        //         raw_pointer_cast(&m[0]),
+        //         raw_pointer_cast(&x[0]),
+        //         raw_pointer_cast(&v[0]),
+        //         N, dim
+        //     ); // in output.cpp
+        // }
+        if(i%vtk_out_freq == 0){
             m = d_m; x = d_x; v = d_v;
-            writeOut(
-                part_out_name_base, (i/part_out_freq),
+            writeVTK(
+                part_out_name_base, (i/vtk_out_freq),
                 raw_pointer_cast(&m[0]),
                 raw_pointer_cast(&x[0]),
                 raw_pointer_cast(&v[0]),
                 N, dim
-            ); // in input.cpp
-
-        }
-        if(i%vtk_out_freq == 0){
-
+            ); // in output.cpp
         }
     }
 

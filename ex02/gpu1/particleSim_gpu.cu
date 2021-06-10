@@ -77,8 +77,8 @@ int main(){
                 N, dim, epsilon, sigma
             );
         
-        for (int j=0; j<6; j++) cout<<f[j]<<"  ";
-        cout<<endl;
+        // for (int j=0; j<6; j++) cout<<f[j]<<"  ";
+        // cout<<endl;
     }
     
     // CUDA PROGRAMMING
@@ -106,14 +106,14 @@ int main(){
     
     x = d_x; v = d_v; f = d_f;
 
-    for (int j=1*N*dim; j<1*N*dim+6; j++) cout<<f[j]<<"  ";
-        cout<<endl;
+    // for (int j=1*N*dim; j<1*N*dim+6; j++) cout<<f[j]<<"  ";
+    //     cout<<endl;
 
     // for (int j=1*N*dim; j<1*N*dim+6; j++) cout<<x[j]<<"  ";
     //     cout<<endl;
 
-    for (int j=1*N*dim; j<1*N*dim+6; j++) cout<<v[j]<<"  ";
-        cout<<endl;
+    // for (int j=1*N*dim; j<1*N*dim+6; j++) cout<<v[j]<<"  ";
+    //     cout<<endl;
     
     writeOut(
         part_out_name_base, 
@@ -122,6 +122,15 @@ int main(){
         raw_pointer_cast(&x[0]),
         raw_pointer_cast(&v[0]),
         frames, N, dim      
+    );
+
+    writeVTK(
+        vtk_out_name_base,
+        vtk_out_freq,
+        raw_pointer_cast(&m[0]),
+        raw_pointer_cast(&x[0]),
+        raw_pointer_cast(&v[0]),
+        frames, N, dim
     );
 
     cout<<"\n\nAll done!\n\n";
