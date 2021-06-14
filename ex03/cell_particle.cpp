@@ -2,27 +2,34 @@
 #include<iostream>
 #include<cmath>
 
+typedef particle* particleptr;
+
 using namespace std;
 
 struct particle{
+    unsigned id;
     double *x=NULL, *v=NULL, *f=NULL;
+    particle *next = NULL, *prev = NULL;
+    cell* head;
 
     particle() = default;
 
-    particle(double* tempx, double* tempv, double* tempf){
+    particle(unsigned& tempid, double* tempx, double* tempv, double* tempf){
+        this->id = tempid;
         this->x = tempx;
         this->v = tempv;
         this->f = tempf;
     }
 
     particle(const particle& other){
-        particle* p = new particle;
+        this->id = other.id;
         this->x = other.x;
         this->v = other.v;
         this->f = other.f;
     }
 
     particle& operator=(const particle& other){
+        this->id = other.id;
         this->x = other.x;
         this->v = other.v;
         this->f = other.f;
@@ -36,44 +43,78 @@ struct particle{
         }
         return sqrt(dis);
     }
-};
 
-typedef particle* particleptr;
+    void join(cell *c){
+        c->addParticle(this, c);
+    }
+
+    void del(){
+        particleptr temp = this->prev;
+        temp->next = this->next;
+        temp = this->next;
+        temp->prev = this->prev;
+        this->prev=NULL;
+        this->next=NULL;
+    }
+};
 
 class cell{
     private: 
-    particleptr part[10];
-    int n = 0;
-    int count = 0;
-
+    particleptr even=NULL, odd=NULL, evenlast=NULL, oddlast=NULL;
+    unsigned id;
     public:
-    // cell(const int n){
-    //     this->part = new particle[n];
-    //     this->n = n;
-    // }
+    cell() = default;
 
-    ~cell(){
-        delete[] this->part;
-    }
-
-    void addParticle(particleptr x){
-        part[count] = x;
-        count++;
+    void addParticle(particleptr x, cell* c){
+        if(x->id%2 == 0){ //even
+            if(evenlast==NULL){
+                even = x;
+                evenlast = x;
+                x->head=c;
+            }
+            else{
+                evenlast->next=x;
+                x->prev=evenlast;
+                evenlast=x;
+                x->head=c;
+            }
+        }
+        
+        if(x->id%2 == 1){ //odd
+            if(oddlast==NULL){
+                odd = x;
+                oddlast = x;
+                x->head=c;
+            }
+            else{
+                oddlast->next=x;
+                x->prev=oddlast;
+                oddlast=x;
+                x->head=c;
+            }
+        }
     }
 
     void delParticle(particleptr x){
-        int flag = 0;
-        for(int i = 0; i<count; i++){
-            if (part[i] == x){
-                part[i] = part[count-1];
-                flag = 1;
-                count--;
-            }
-        }
-        if(flag == 0){
-            cout<<"Error: No particle found to delete";
-        }
+        particleptr temp = x->prev;
+        temp->next = x->next;
+        temp = x->next;
+        temp->prev = x->prev;
+        x->prev=NULL;
+        x->next=NULL;
     }
-
+    
+    void set_cell_id(unsigned& id){
+        this->id = id;
+    }
+    unsigned get_cell_id(){
+        return this->id;
+    }
+    particleptr get_even_ptr(){
+        return even;
+    }
+    particleptr get_odd_ptr(){
+        return odd;
+    }
 
 };

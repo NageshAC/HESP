@@ -1,5 +1,7 @@
 #include<cmath>
 #include<cuda_runtime.h>
+#include "cell_particle.cpp"
+
 __device__ double ljpot(
     const double &eps, const double &sig, 
     const double &dis
@@ -10,7 +12,8 @@ __device__ double ljpot(
     return temp;
 }
 __global__ void calF(
-    double *x, double *f, 
+    cell* cl, particleptr pcl, 
+    unsigned& x_n, unsigned& y_n, unsigned& z_n,
     const int N, const int dim,
     const double epsilon, const double sigma
 ){
@@ -18,14 +21,36 @@ __global__ void calF(
     if(idx<N){
 
         double f_tot = 0;
-        for(int j=0; j<N; j++){
-            if(idx!=j){
-                double dis = distance(&x[idx*dim],&x[j*dim],dim);
-                f_tot += ljpot(epsilon, sigma, dis);
-                for(int k=0; k<dim; k++)
-                    f[idx*dim+k] = f_tot*(x[idx*dim+k]-x[j*dim+k])/dis;
+        // int line, plane;
+        unsigned cell_id = (pcl[idx].head)->get_cell_id();
+        for(int i=-1; i<2; i++){
+            // plane = cell_id%(x_n*y_n)+i;
+            for(int j=-1; j<2; j++){
+                // line = cell_id%(x_n)+j;
+                for(int k=-1; k<2; k++){
+                    // if((i*x_n*y_n*j*x_n*k)%(x_n*y_n)=plane)
+                    int cl_id = cell_id+(i*x_n*y_n*j*x_n*k);
+                    if(cl_id < x_n*y_n*z_n && cl_id > 0 ){
+                        particleptr temp = cl[cl_id].get_even_ptr();
+                        while(temp!=NULL){
+
+                        }
+                    }
+
+                }
             }
         }
+
+
+
+        // for(int j=0; j<N; j++){
+        //     if(idx!=j){
+        //         double dis = pcl[idx].distance(pcl[j]);
+        //         f_tot += ljpot(epsilon, sigma, dis);
+        //         for(int k=0; k<dim; k++)
+        //             f[idx*dim+k] = f_tot*(x[idx*dim+k]-x[j*dim+k])/dis;
+        //     }
+        // }
     }
     
 }
