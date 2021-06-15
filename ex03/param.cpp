@@ -10,10 +10,10 @@ void readParam(
     string& part_input_file,string &part_out_name_base,string &vtk_out_name_base,
     double& timeStep,double& timeEnd,double& epsilon,double& sigma,
     unsigned& part_out_freq,unsigned& vtk_out_freq,unsigned& cl_wg_1dsize,
-    int& cl_wg_3dsize_x, int& cl_wg_3dsize_y, int& cl_wg_3dsize_z,
+    unsigned& cl_wg_3dsize_x, unsigned& cl_wg_3dsize_y, unsigned& cl_wg_3dsize_z,
     double& x_min, double& x_max, double& y_min, double& y_max, 
     double& z_min, double& z_max,
-    int& x_n, int& y_n, int& z_n, double& r_cut, double& r_skin
+    unsigned& x_n, unsigned& y_n, unsigned& z_n, double& r_cut, double& r_skin
 ){
     fstream paramFile;
     paramFile.open(paramFileName, ios::in);

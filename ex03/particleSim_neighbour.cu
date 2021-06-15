@@ -9,7 +9,7 @@
 #include "input.cpp"
 #include "vel_verlet_neighbour.cpp"
 #include "output.cpp"
-#include "cell_particle.cpp"
+#include "particle.cpp"
 
 using namespace std;
 
@@ -28,7 +28,7 @@ int main(){
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
 
-    int x_n, y_n, z_n, cl_wg_3dsize_x, cl_wg_3dsize_y, cl_wg_3dsize_z;
+    unsigned x_n, y_n, z_n, cl_wg_3dsize_x, cl_wg_3dsize_y, cl_wg_3dsize_z;
     double x_min, x_max, y_min, y_max, z_min, z_max,
          r_cut, r_skin;
     
@@ -73,12 +73,12 @@ int main(){
             raw_pointer_cast(&m[0]),
             raw_pointer_cast(sliced.data()), N, dim
         );
-        // outInput(
-        //     raw_pointer_cast(x.data()),
-        //     raw_pointer_cast(v.data()),
-        //     raw_pointer_cast(m.data()),
-        //     N,dim
-        // ); // in input.cpp
+        outInput(
+            raw_pointer_cast(x.data()),
+            raw_pointer_cast(v.data()),
+            raw_pointer_cast(m.data()),
+            N,dim
+        ); // in input.cpp
     }
 
     
@@ -92,8 +92,8 @@ int main(){
     );
     // cout<<"Max threads per block: "<<deviceProp.maxThreadsPerBlock<<endl;
 
-    int blockSize = deviceProp.maxThreadsPerBlock, 
-    gridSize = (N/deviceProp.maxThreadsPerBlock)+1;
+    // int blockSize = deviceProp.maxThreadsPerBlock, 
+    // gridSize = (N/deviceProp.maxThreadsPerBlock)+1;
 
     // cout<<"Block Size: "<<blockSize<<"\nGrid size: "<<gridSize<<endl
     // <<"Frames: "<<frames<<endl;
@@ -106,24 +106,40 @@ int main(){
     for(unsigned i=0; i<N; i++){
         particle temp(
             i,
-            raw_pointer_cast(&d_x[i*dim]),
-            raw_pointer_cast(&d_v[i*dim]),
+            raw_pointer_cast(d_x.data()),
+            raw_pointer_cast(&v[i*dim]),
             raw_pointer_cast(&d_f[i*dim])
+        );
+        temp.calCell_id(
+            x_min, del_x,
+            y_min, del_y, 
+            z_min, del_z,
+            x_n, y_n
         );
         pcl[i] = temp;
     }
+    double* pos = pcl[N-1].x;
+    cout<<pos[0]<<"\t"<<pos[0]<<"\t"<<pos[0]<<"\n";
 
     // cell creation
-    cell* cl = new cell[cell_n];
-    for(unsigned i=0; i<cell_n; i++) cl[i].set_cell_id(i);
-    for(unsigned i=0; i<N; i++){
-        int i_x = (pcl[i].x[0]-x_min)/del_x;
-        int i_y = (pcl[i].y[0]-y_min)/del_y;
-        int i_z = (pcl[i].z[0]-z_min)/del_z;
-        pcl[i].join(
-            cl[i_z*x_n*y_n+i_y*x_n+i_x]
-        );
-    }
+    // cell* cl = new cell[cell_n];
+    // for(unsigned i=0; i<cell_n; i++) cl[i].id = i;
+    // for(unsigned i=0; i<N; i++){
+    //     cout<<"x\n";
+    //     int id = findCellId(
+    //         &pcl[i], x_min, del_x,
+    //         y_min, del_y, z_min, del_z,
+    //         x_n, y_n
+    //     );
+    //     cl[id].addParticle(&pcl[i]);
+    // }
+
+    // calF<<<gridSize,blockSize>>>(
+    //     cl, pcl, 
+    //     x_n, y_n, z_n, 
+    //     N, dim, 
+    //     epsilon, sigma
+    // );
 
 
 

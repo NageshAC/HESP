@@ -25,7 +25,7 @@ void outInput(
 }
 
 void readInput( string fileName, 
-    host_vector<double>& sliced, int& N, int& dim
+    host_vector<double>& sliced, unsigned& N, unsigned& dim
 ){
     fstream file;
     file.open(fileName);
@@ -63,7 +63,7 @@ void readInput( string fileName,
 
 void extract(
     double* x, double* v, double* m,
-    double* sliced,const int& N, const int& dim
+    double* sliced,const unsigned& N, const unsigned& dim
 ){
     // copy from sliced to x,y,m
     int line_size = 2*dim+1;
