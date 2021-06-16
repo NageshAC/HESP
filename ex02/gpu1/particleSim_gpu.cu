@@ -22,7 +22,7 @@ void cudasafe(int error, string message, string file, int line) {
 int main(){
         
     //reading input parameters
-    string paramFileName ="attract.par",input_path = "../Question/input/";
+    string paramFileName ="blocks.par",input_path = "../Question/input/";
     string part_input_file, part_out_name_base, vtk_out_name_base;
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;

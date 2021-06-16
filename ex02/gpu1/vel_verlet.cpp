@@ -35,12 +35,12 @@ __host__ __device__ void calforce(
     
     for(int i=0; i<N; i++){
         if(x_new == x_new_begin){
-            x_new_begin += 3;
+            x_new_begin += dim;
             continue;
         }
         else{
             ljpot(f_new, x_new, x_new_begin, dim, epsilon, sigma);
-            x_new_begin +=3;
+            x_new_begin +=dim;
         }
 
     }
@@ -91,7 +91,7 @@ __global__ void vel_verlet(
             x_new, x, v, f, m, 
             timeStep, dim
         );
-        __syncthreads;
+        // __syncthreads;
         calforce(
             f_new,x_new,x_new_begin,
             N,dim,epsilon,sigma

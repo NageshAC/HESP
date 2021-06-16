@@ -1,21 +1,30 @@
 #pragma once
 #include<iostream>
 #include<cmath>
+#include<thrust/host_vector.h>
+#include<thrust/device_vector.h>
+#include<cuda_runtime.h>
 using namespace std;
 
 
 struct particle{
     unsigned id, cell_id;
-    double *x=NULL, *v=NULL, *f=NULL;
+    double *x = new double[3], *v = new double[3], 
+    *f = new double[3], *m = new double;
     particle *next = NULL, *prev = NULL;
 
     particle() = default;
 
-    particle(unsigned& tempid, double* tempx, double* tempv, double* tempf){
+    particle(
+        unsigned& tempid,  
+        double* tempx, double* tempv, 
+        double* tempf, double* tempm
+    ){
         this->id = tempid;
         this->x = tempx;
         this->v = tempv;
         this->f = tempf;
+        this->m = tempm;
         // cout<<x[0]<<"\t"<<x[1]<<"\t"<<x[2]<<"\n";
     }
 
@@ -33,6 +42,19 @@ struct particle{
         this->v = other.v;
         this->f = other.f;
         return *this;
+    }
+   
+    void alloc(
+        unsigned& tempid,  
+        double* tempx, double* tempv, 
+        double* tempf, double* tempm
+    ){
+        this->id = tempid;
+        this->x = tempx;
+        this->v = tempv;
+        this->f = tempf;
+        this->m = tempm;
+        // cout<<x[0]<<"\t"<<x[1]<<"\t"<<x[2]<<"\n";
     }
 
     double distance(const particle* other, const int dim){
@@ -62,6 +84,7 @@ struct particle{
         int i_y = (x[1]-y_min)/del_y;
         int i_z = (x[2]-z_min)/del_z;
         cell_id = i_z*x_n*y_n + i_y*x_n + i_x;
+        // cout<<cell_id<<"\n";
     }
 };
 typedef particle* particleptr;

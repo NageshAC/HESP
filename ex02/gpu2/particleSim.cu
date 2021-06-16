@@ -23,7 +23,7 @@ void cudasafe(int error, string message, string file, int line) {
 int main(){
         
     //reading input parameters
-    string paramFileName ="attract.par",input_path = "../Question/input/";
+    string paramFileName ="blocks.par",input_path = "../Question/input/";
     string part_input_file, part_out_name_base, vtk_out_name_base;
     double timeStep, timeEnd, epsilon, sigma;
     unsigned part_out_freq, vtk_out_freq, cl_wg_1dsize;
@@ -71,7 +71,7 @@ int main(){
     }
     
     // CUDA Programming
-    device_vector<double> d_x(x),d_v(v),d_f(N*dim,0),d_f_old(N*dim,0),d_m(m);
+    device_vector<double> d_x(x),d_v(v),d_f(N*dim,0),d_f_old(N*dim,0),zeros(N*dim,0),d_m(m);
     cudaDeviceProp deviceProp;
     cudasafe(
         cudaGetDeviceProperties(&deviceProp,0),
@@ -125,6 +125,7 @@ int main(){
         );
 
         d_f_old = d_f;
+        thrust::copy(zeros.begin(), zeros.end(), d_f.begin());
         
         calF<<<gridSize, blockSize>>>(
             raw_pointer_cast(&d_x[0]),
@@ -157,16 +158,16 @@ int main(){
         //     cout<<endl;
         // }
 
-        // if(i%part_out_freq == 0){
-        //     m = d_m; x = d_x; v = d_v;
-        //     writeOut(
-        //         part_out_name_base, (i/part_out_freq),
-        //         raw_pointer_cast(&m[0]),
-        //         raw_pointer_cast(&x[0]),
-        //         raw_pointer_cast(&v[0]),
-        //         N, dim
-        //     ); // in output.cpp
-        // }
+        if(i%part_out_freq == 0){
+            m = d_m; x = d_x; v = d_v;
+            writeOut(
+                part_out_name_base, (i/part_out_freq),
+                raw_pointer_cast(&m[0]),
+                raw_pointer_cast(&x[0]),
+                raw_pointer_cast(&v[0]),
+                N, dim
+            ); // in output.cpp
+        }
         if(i%vtk_out_freq == 0){
             m = d_m; x = d_x; v = d_v;
             writeVTK(

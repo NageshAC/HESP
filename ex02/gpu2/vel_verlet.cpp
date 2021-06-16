@@ -15,19 +15,19 @@ __global__ void calF(
     const double epsilon, const double sigma
 ){
     int idx = blockIdx.x*blockDim.x+threadIdx.x;
+
     if(idx<N){
 
         double f_tot = 0;
         for(int j=0; j<N; j++){
             if(idx!=j){
                 double dis = distance(&x[idx*dim],&x[j*dim],dim);
-                f_tot += ljpot(epsilon, sigma, dis);
+                f_tot = ljpot(epsilon, sigma, dis);
                 for(int k=0; k<dim; k++)
-                    f[idx*dim+k] = f_tot*(x[idx*dim+k]-x[j*dim+k])/dis;
+                    f[idx*dim+k] += f_tot*(x[idx*dim+k]-x[j*dim+k])/dis;
             }
         }
-    }
-    
+    }    
 }
 
 __global__ void calX(

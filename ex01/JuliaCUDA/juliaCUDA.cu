@@ -10,11 +10,12 @@ using namespace std;
 typedef long long ll;
 
 const int bit_color = 8;
-const int h = 512, w = h;
+const int h = 2048, w = h;
 const double xmax = 2.0, xmin = -2.0;
+const double ymax = 2.0, ymin = -2.0;
 // // const double cx = 0, cy = 0.8;
 const double xresolution = (xmax-xmin)/w;
-// const double yresolution = (xmax-xmin)/h;
+const double yresolution = (ymax-ymin)/h;
 // const int threshold = pow(10,2);
 // unsigned low_itr = 300, high_itr = 0;
 
@@ -74,7 +75,7 @@ void initBG(unsigned char* img){
     }
 }
 thrust::complex<double> initR(int idx){
-    thrust::complex<double> z (xmin + (idx%w)*xresolution , xmin + (idx/w)*xresolution);
+    thrust::complex<double> z (xmin + (idx%w)*xresolution , ymin + (idx/w)*yresolution);
     return z;
 }
 void cudasafe(int error, string message="(---)", string file = "(-this file-)", int line = -1) {
@@ -93,7 +94,7 @@ __global__ void setv(int* image, const double cx,const double cy, thrust::comple
     }
 
     
-    image[idx] = i*10;
+    image[idx] = i*5;
 }
 void createImg(double cx, double cy, string filename = "juliaCUDAx.png"){
     unsigned char* img = new unsigned char [w*h*3];
