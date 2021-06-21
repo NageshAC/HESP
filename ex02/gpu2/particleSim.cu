@@ -93,6 +93,12 @@ int main(){
         N, dim, epsilon, sigma
     );
 
+    cudasafe(
+        cudaDeviceSynchronize(),
+        "sync threads", 
+        __FILE__, __LINE__
+    );
+
     // for (int i=0; i<N; i++){
     //     for (int j=0; j<dim; j++)
     //         cout<<d_f[i*dim+j]<<"\t";
@@ -124,6 +130,12 @@ int main(){
             timeStep, N, dim
         );
 
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
+
         d_f_old = d_f;
         thrust::copy(zeros.begin(), zeros.end(), d_f.begin());
         
@@ -133,6 +145,12 @@ int main(){
             N, dim, epsilon, sigma
         );
 
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
+
         calV<<<gridSize,blockSize>>>(
             raw_pointer_cast(&d_v[0]),
             raw_pointer_cast(&d_f[0]),
@@ -140,6 +158,13 @@ int main(){
             raw_pointer_cast(&d_m[0]),
             timeStep, N, dim
         );
+
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
+        
         // if(i<2){
 
         //     for (int k=0; k<N*dim; k++){

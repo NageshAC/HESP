@@ -91,7 +91,7 @@ __global__ void vel_verlet(
             x_new, x, v, f, m, 
             timeStep, dim
         );
-        // __syncthreads;
+        __syncthreads;
         calforce(
             f_new,x_new,x_new_begin,
             N,dim,epsilon,sigma

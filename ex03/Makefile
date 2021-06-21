@@ -1,4 +1,4 @@
 brute-force:
-	nvcc ./brute-force/particleSim.cu -o ./particleSim
+	nvcc ./brute_force/particleSim.cu -o ./particleSim
 	./particleSim
 	rm particleSim

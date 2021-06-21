@@ -103,6 +103,12 @@ int main(){
             raw_pointer_cast(&d_m[0]), N, dim, 
             timeStep, epsilon, sigma
         );
+        
+    cudasafe(
+        cudaDeviceSynchronize(),
+        "sync threads", 
+        __FILE__, __LINE__
+    );
     
     x = d_x; v = d_v; f = d_f;
 

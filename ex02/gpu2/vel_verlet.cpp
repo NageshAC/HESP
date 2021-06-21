@@ -15,9 +15,7 @@ __global__ void calF(
     const double epsilon, const double sigma
 ){
     int idx = blockIdx.x*blockDim.x+threadIdx.x;
-
     if(idx<N){
-
         double f_tot = 0;
         for(int j=0; j<N; j++){
             if(idx!=j){

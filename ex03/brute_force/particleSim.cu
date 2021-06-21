@@ -103,7 +103,11 @@ int main(){
         raw_pointer_cast(&d_f[0]),
         N, dim, epsilon, sigma, r_cut
     );
-    cudaDeviceSynchronize();
+    cudasafe(
+        cudaDeviceSynchronize(),
+        "sync threads", 
+        __FILE__, __LINE__
+    );
     writeOut(
         part_out_name_base, 0,
         raw_pointer_cast(&m[0]),
@@ -129,7 +133,11 @@ int main(){
             x_min, x_max, y_min, 
             y_max, z_min, z_max
         );
-        cudaDeviceSynchronize();
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
 
         d_f_old = d_f;
         thrust::copy(zeros.begin(), zeros.end(), d_f.begin());
@@ -139,7 +147,11 @@ int main(){
             raw_pointer_cast(&d_f[0]),
             N, dim, epsilon, sigma, r_cut
         );
-        cudaDeviceSynchronize();
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
         calV<<<gridSize,blockSize>>>(
             raw_pointer_cast(&d_v[0]),
             raw_pointer_cast(&d_f[0]),
@@ -147,7 +159,11 @@ int main(){
             raw_pointer_cast(&d_m[0]),
             timeStep, N, dim
         );
-        cudaDeviceSynchronize();
+        cudasafe(
+            cudaDeviceSynchronize(),
+            "sync threads", 
+            __FILE__, __LINE__
+        );
         if(i%part_out_freq == 0){
             m = d_m; x = d_x; v = d_v;
             writeOut(
