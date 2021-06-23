@@ -132,6 +132,7 @@ int main(){
     ); // in output.cpp
 
     for(int i=1; i<=frames; i++){
+
         calX<<<gridSize, blockSize>>>(
             raw_pointer_cast(&d_x[0]),
             raw_pointer_cast(&d_v[0]),
@@ -205,7 +206,7 @@ int main(){
         }
     }
 
-    cout<<"\n\nAll done!\n\n";
+    std::cout<<"\n\nAll done!\n\n";
         
     return 0;
 }

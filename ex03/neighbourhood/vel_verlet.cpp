@@ -23,7 +23,7 @@ __global__ void calF(
 
         double f_tot = 0;
         for(int j=0; j<N; j++){
-            if(n[idx*N+j]!=0){
+            if(n[idx*N+j]>0){
                 f_tot = ljpot(epsilon, sigma, n[idx*N+j]);
                 for(int k=0; k<dim; k++)
                     f[idx*dim+k] += f_tot*(x[idx*dim+k]-x[j*dim+k])/n[idx*N+j];
